@@ -92,7 +92,6 @@ func validarReceitaJaCadastrada(Descricao string, Data time.Time) bool {
 }
 
 func DeletarReceitaPorID(id string) {
-
 	var receita model.Receita
 	database.DB.Delete(&receita, id)
 }

@@ -12,10 +12,13 @@ func HandleRequest(Port string) {
 	r.GET("/healthcheck", controller.HealthCheck)
 	r.GET("/receitas", controller.BuscaTodasReceitas)
 	r.GET("/receitas/:id", controller.BuscarReceitaId)
+	r.GET("/despesas/:id", controller.BuscarDespesaId)
 	r.GET("/despesas", controller.BuscarTodasDespesas)
 	r.POST("/receitas", controller.CadastraReceita)
 	r.POST("/despesas", controller.CadastrarDespesa)
 	r.PUT("/receitas/:id", controller.AtualizarReceitaPorID)
+	r.PUT("/despesas/:id", controller.AtualizarDespesaPorID)
 	r.DELETE("/receitas/:id", controller.DeletarReceitaPorID)
+	r.DELETE("/despesas/:id", controller.DeletarDespesaPorID)
 	r.Run(":" + Port)
 }
