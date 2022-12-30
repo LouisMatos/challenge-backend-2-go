@@ -1,0 +1,67 @@
+package service
+
+import (
+	"log"
+	"strconv"
+	"time"
+
+	"github.com/LouisMatos/challenge-backend-2-go/database"
+	"github.com/LouisMatos/challenge-backend-2-go/model"
+	"github.com/gin-gonic/gin"
+)
+
+func SalvarNovaReceita(receitaDTO *model.ReceitaDTO, c *gin.Context) (model.Receita, bool) {
+
+	date, _ := time.Parse("02/01/2006 15:04:05", receitaDTO.Data+" 00:00:00")
+
+	value, _ := strconv.ParseFloat(receitaDTO.Valor, 32)
+
+	receita := model.Receita{
+		Descricao: receitaDTO.Descricao,
+		Data:      date,
+		Valor:     float32(value),
+	}
+
+	isSaved := validarReceitaJaCadastrada(receita.Descricao, receita.Data)
+
+	if !isSaved {
+
+		log.Println("Convertendo dto para objeto a ser salvo no banco de dados!")
+
+		database.DB.Create(&receita)
+
+		log.Println("Receita salva no banco de dados!")
+
+		return receita, false
+
+	} else {
+		return receita, true
+	}
+
+}
+
+func validarReceitaJaCadastrada(Descricao string, Data time.Time) bool {
+
+	var receita model.Receita
+
+	database.DB.Where("descricao ILIKE ? AND TO_CHAR(data, 'yyyy-mm') LIKE ?", Descricao, Data.Format("2006-01")).Find(&receita)
+
+	if receita.ID == 0 {
+		log.Println("Receita ainda não foi cadastrada!")
+		return false
+	} else {
+		log.Println("Receita já foi cadastrada!")
+		return true
+	}
+
+}
+
+func BuscaTodasReceitas(c *gin.Context) []model.Receita {
+
+	var receitas []model.Receita
+
+	database.DB.Find(&receitas)
+
+	return receitas
+
+}
