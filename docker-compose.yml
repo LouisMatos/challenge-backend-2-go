@@ -35,6 +35,24 @@ services:
           cpus: '0.15'
           memory: 128M
 
+  api:
+    build:
+      context: ./
+      dockerfile: Dockerfile
+    image: testeluismatos/challenge-backend-2-api:0.0.1
+    container_name: api
+    ports:
+      - 8070:8070
+    networks:
+      - network_postgres
+    depends_on:
+      - postgres
+    deploy:
+      resources:
+        limits:
+          cpus: '0.4'
+          memory: 64M
+
 volumes:
   postgres:
 

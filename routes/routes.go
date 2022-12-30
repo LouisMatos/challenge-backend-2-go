@@ -10,7 +10,12 @@ func HandleRequest(Port string) {
 	r := gin.Default()
 	r.SetTrustedProxies([]string{"192.168.0.1"})
 	r.GET("/healthcheck", controller.HealthCheck)
-	r.POST("/receitas", controller.CadastraReceita)
 	r.GET("/receitas", controller.BuscaTodasReceitas)
+	r.GET("/receitas/:id", controller.BuscarReceitaId)
+	r.GET("/despesas", controller.BuscarTodasDespesas)
+	r.POST("/receitas", controller.CadastraReceita)
+	r.POST("/despesas", controller.CadastrarDespesa)
+	r.PUT("/receitas/:id", controller.AtualizarReceitaPorID)
+	r.DELETE("/receitas/:id", controller.DeletarReceitaPorID)
 	r.Run(":" + Port)
 }
