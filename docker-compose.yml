@@ -8,8 +8,15 @@ services:
       - POSTGRES_DB=challenge      
     ports:
       - "5432:5432"
+    networks:
+      - network_postgres
     volumes:
       - postgres:/var/lib/postgresql/data  
+    deploy:
+      resources:
+        limits:
+          cpus: '0.25'
+          memory: 256M
 
   pgadmin-compose:
     image: dpage/pgadmin4
@@ -18,8 +25,19 @@ services:
       PGADMIN_DEFAULT_PASSWORD: "123456"
     ports:
       - "54321:80"
+    networks:
+      - network_postgres
     depends_on:
       - postgres
+    deploy:
+      resources:
+        limits:
+          cpus: '0.15'
+          memory: 128M
 
 volumes:
   postgres:
+
+networks:
+  network_postgres:
+    driver: bridge

@@ -4,13 +4,14 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/LouisMatos/challenge-backend-2-go/database"
 	"github.com/LouisMatos/challenge-backend-2-go/model"
+	"github.com/LouisMatos/challenge-backend-2-go/service"
 	"github.com/gin-gonic/gin"
 )
 
 func CadastraReceita(c *gin.Context) {
-	var receita model.Receita
+
+	var receita model.ReceitaDTO
 	log.Print("Iniciando cadastro de receita")
 
 	if err := c.ShouldBindJSON(&receita); err != nil {
@@ -18,16 +19,30 @@ func CadastraReceita(c *gin.Context) {
 			"error": err.Error()})
 		return
 	}
-	// date, _ := time.Parse("02/01/2006 15:04:05", receita.Data+" 00:00:00")
 
-	// receita.Data = date.String()
+	log.Print("Convertendo para json")
 
-	database.DB.Create(&receita)
-	c.JSON(http.StatusOK, receita)
+	if err := model.ValidaDadosReceita(&receita); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"erro": err.Error()})
+		return
+	}
+
+	log.Print("Campos validados com sucesso! ", receita)
+
+	receitaSalva, jaCadastrado := service.SalvarNovaReceita(&receita, c)
+
+	if jaCadastrado {
+		log.Println("Receita cadastrada anteriormente!")
+		c.JSON(http.StatusUnprocessableEntity, gin.H{"erro": "Receita já cadastrada nesse mês!"})
+	} else {
+		c.JSON(http.StatusOK, receitaSalva)
+	}
+
 }
 
 func BuscaTodasReceitas(c *gin.Context) {
-	var receitas []model.Receita
-	database.DB.Find(&receitas)
+	log.Println("Iniciando busca de todas as receitas!")
+	receitas := service.BuscaTodasReceitas(c)
 	c.JSON(200, receitas)
 }

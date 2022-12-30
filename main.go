@@ -21,4 +21,5 @@ func main() {
 	log.Println("Iniciando o servidor!")
 
 	routes.HandleRequest(config.AppConfig.Port)
+
 }
