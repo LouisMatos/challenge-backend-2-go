@@ -34,15 +34,102 @@ func CadastraReceita(c *gin.Context) {
 
 	if jaCadastrado {
 		log.Println("Receita cadastrada anteriormente!")
-		c.JSON(http.StatusUnprocessableEntity, gin.H{"erro": "Receita já cadastrada nesse mês!"})
+		c.JSON(http.StatusUnprocessableEntity, gin.H{"message": "Receita já cadastrada nesse mês!", "status": 422})
 	} else {
 		c.JSON(http.StatusOK, receitaSalva)
 	}
 
 }
 
+func AtualizarReceitaPorID(c *gin.Context) {
+
+	id := c.Params.ByName("id")
+
+	receita := service.BuscarReceitaId(id)
+
+	if receita.ID == 0 {
+		c.JSON(http.StatusNotFound, gin.H{
+			"mensagem": "Receita não encontrado",
+			"status":   404})
+		return
+	}
+
+	var receitaDTO model.ReceitaDTO
+
+	log.Print("Iniciando atualização de receita")
+
+	if err := c.ShouldBindJSON(&receitaDTO); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": err.Error()})
+		return
+	}
+
+	log.Print("Convertendo para json")
+
+	if err := model.ValidaDadosReceita(&receitaDTO); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"erro": err.Error()})
+		return
+	}
+
+	log.Print("Campos validados com sucesso! ", receitaDTO)
+
+	receitaAtualizada, jaCadastrado := service.AtualizarReceita(&receitaDTO, id)
+
+	if jaCadastrado {
+		log.Println("Receita cadastrada anteriormente!")
+		c.JSON(http.StatusUnprocessableEntity, gin.H{"message": "Receita já cadastrada nesse mês!", "status": 422})
+	} else {
+		c.JSON(http.StatusOK, receitaAtualizada)
+	}
+
+}
+
+func DeletarReceitaPorID(c *gin.Context) {
+
+	id := c.Params.ByName("id")
+
+	receita := service.BuscarReceitaId(id)
+
+	if receita.ID == 0 {
+		c.JSON(http.StatusNotFound, gin.H{
+			"mensagem": "Receita não encontrado",
+			"status":   404})
+		return
+	}
+
+	service.DeletarReceitaPorID(id)
+
+	c.JSON(http.StatusNoContent, nil)
+}
+
+func BuscarReceitaId(c *gin.Context) {
+
+	id := c.Params.ByName("id")
+
+	receita := service.BuscarReceitaId(id)
+
+	if receita.ID == 0 {
+		c.JSON(http.StatusNotFound, gin.H{
+			"mensagem": "Receita não encontrado",
+			"status":   404})
+		return
+	}
+
+	c.JSON(200, receita)
+
+}
+
 func BuscaTodasReceitas(c *gin.Context) {
+
 	log.Println("Iniciando busca de todas as receitas!")
+
 	receitas := service.BuscaTodasReceitas(c)
-	c.JSON(200, receitas)
+
+	if len(receitas) == 0 {
+		log.Println("Nenhuma receita cadastrada!")
+		c.JSON(404, gin.H{"status": 404, "mensagem": "Nenhuma receita cadastrada!"})
+	} else {
+		c.JSON(200, receitas)
+	}
 }

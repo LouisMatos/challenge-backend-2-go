@@ -40,6 +40,41 @@ func SalvarNovaReceita(receitaDTO *model.ReceitaDTO, c *gin.Context) (model.Rece
 
 }
 
+func AtualizarReceita(receitaDTO *model.ReceitaDTO, id string) (model.Receita, bool) {
+
+	date, _ := time.Parse("02/01/2006 15:04:05", receitaDTO.Data+" 00:00:00")
+
+	value, _ := strconv.ParseFloat(receitaDTO.Valor, 32)
+
+	u, err := strconv.ParseUint(id, 0, 64)
+	if err != nil {
+		panic(err)
+	}
+
+	receita := model.Receita{
+		ID:        uint(u),
+		Descricao: receitaDTO.Descricao,
+		Data:      date,
+		Valor:     float32(value),
+	}
+
+	isSaved := validarReceitaJaCadastrada(receita.Descricao, receita.Data)
+
+	if !isSaved {
+
+		log.Println("Convertendo dto para objeto a ser atualizado no banco de dados!")
+
+		database.DB.Save(&receita)
+
+		log.Println("Receita atualizada no banco de dados!")
+
+		return receita, false
+	} else {
+		return receita, true
+	}
+
+}
+
 func validarReceitaJaCadastrada(Descricao string, Data time.Time) bool {
 
 	var receita model.Receita
@@ -54,6 +89,18 @@ func validarReceitaJaCadastrada(Descricao string, Data time.Time) bool {
 		return true
 	}
 
+}
+
+func DeletarReceitaPorID(id string) {
+
+	var receita model.Receita
+	database.DB.Delete(&receita, id)
+}
+
+func BuscarReceitaId(id string) model.Receita {
+	var receita model.Receita
+	database.DB.First(&receita, id)
+	return receita
 }
 
 func BuscaTodasReceitas(c *gin.Context) []model.Receita {
