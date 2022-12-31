@@ -2,13 +2,13 @@ FROM golang:1.19-alpine3.17
 
 WORKDIR /app
 
-COPY . ./
+# pre-copy/cache go.mod for pre-downloading dependencies and only redownloading them in subsequent builds if they change
+COPY go.mod go.sum ./
+RUN go mod download && go mod verify
 
-RUN go mod download
-
-RUN go build -o /challenge-backend-2-go
+COPY . .
 
 EXPOSE 8070
+RUN go build 
 
-CMD ["/challenge-backend-2-go", "run"]
-
+CMD ["go", "run", "main.go"]

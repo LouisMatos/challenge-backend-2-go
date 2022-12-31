@@ -124,7 +124,9 @@ func BuscaTodasReceitas(c *gin.Context) {
 
 	log.Println("Iniciando busca de todas as receitas!")
 
-	receitas := service.BuscaTodasReceitas(c)
+	descricao := c.Query("descricao")
+
+	receitas := service.BuscaTodasReceitas(descricao, c)
 
 	if len(receitas) == 0 {
 		log.Println("Nenhuma receita cadastrada!")

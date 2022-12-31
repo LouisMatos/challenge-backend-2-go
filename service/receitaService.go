@@ -102,11 +102,11 @@ func BuscarReceitaId(id string) model.Receita {
 	return receita
 }
 
-func BuscaTodasReceitas(c *gin.Context) []model.Receita {
+func BuscaTodasReceitas(descricao string, c *gin.Context) []model.Receita {
 
 	var receitas []model.Receita
 
-	database.DB.Find(&receitas)
+	database.DB.Where("descricao ILIKE ?", "%"+descricao+"%").Find(&receitas)
 
 	return receitas
 
