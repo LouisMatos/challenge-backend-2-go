@@ -102,11 +102,25 @@ func BuscarReceitaId(id string) model.Receita {
 	return receita
 }
 
-func BuscaTodasReceitas(c *gin.Context) []model.Receita {
+func BuscaTodasReceitas(descricao string, c *gin.Context) []model.Receita {
 
 	var receitas []model.Receita
 
-	database.DB.Find(&receitas)
+	database.DB.Where("descricao ILIKE ?", "%"+descricao+"%").Find(&receitas)
+
+	return receitas
+
+}
+
+func BuscaTodasReceitasMesAno(mes string, ano string) []model.Receita {
+
+	var receitas []model.Receita
+
+	if len(mes) == 1 {
+		mes = "0" + mes
+	}
+
+	database.DB.Where("(TO_CHAR(data, 'YYYY-MM')) = ?", ""+ano+"-"+mes).Find(&receitas)
 
 	return receitas
 
