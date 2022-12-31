@@ -1,6 +1,8 @@
 package routes
 
 import (
+	"net/http"
+
 	"github.com/LouisMatos/challenge-backend-2-go/controller"
 	"github.com/gin-gonic/gin"
 )
@@ -9,16 +11,29 @@ func HandleRequest(Port string) {
 	gin.SetMode(gin.ReleaseMode)
 	r := gin.Default()
 	r.SetTrustedProxies([]string{"192.168.0.1"})
+
+	apiReceitas := r.Group("/receitas")
+	{
+		apiReceitas.GET("/", controller.BuscaTodasReceitas)
+		apiReceitas.GET("/:p1", controller.GetReceitaHandler)
+		apiReceitas.GET("/:p1/:p2", controller.GetReceitaHandler)
+		apiReceitas.POST("/", controller.CadastraReceita)
+		apiReceitas.PUT("/:id", controller.AtualizarReceitaPorID)
+		apiReceitas.DELETE("/:id", controller.DeletarReceitaPorID)
+	}
+
+	apiDespesa := r.Group("/despesas")
+	apiDespesa.GET("/:id", controller.BuscarDespesaId)
+	apiDespesa.GET("/", controller.BuscarTodasDespesas)
+	apiDespesa.POST("/", controller.CadastrarDespesa)
+	apiDespesa.PUT("/:id", controller.AtualizarDespesaPorID)
+	apiDespesa.DELETE("/:id", controller.DeletarDespesaPorID)
+
 	r.GET("/healthcheck", controller.HealthCheck)
-	r.GET("/receitas", controller.BuscaTodasReceitas)
-	r.GET("/receitas/:id", controller.BuscarReceitaId)
-	r.GET("/despesas/:id", controller.BuscarDespesaId)
-	r.GET("/despesas", controller.BuscarTodasDespesas)
-	r.POST("/receitas", controller.CadastraReceita)
-	r.POST("/despesas", controller.CadastrarDespesa)
-	r.PUT("/receitas/:id", controller.AtualizarReceitaPorID)
-	r.PUT("/despesas/:id", controller.AtualizarDespesaPorID)
-	r.DELETE("/receitas/:id", controller.DeletarReceitaPorID)
-	r.DELETE("/despesas/:id", controller.DeletarDespesaPorID)
+
+	r.NoRoute(func(c *gin.Context) {
+		c.JSON(http.StatusNotFound, gin.H{"code": 404, "message": "Page not found"})
+	})
+
 	r.Run(":" + Port)
 }

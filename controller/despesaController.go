@@ -122,7 +122,9 @@ func BuscarTodasDespesas(c *gin.Context) {
 
 	log.Println("Iniciando busca de todas as despesas!")
 
-	despesas := service.BuscarTodasDespesas(c)
+	descricao := c.Query("descricao")
+
+	despesas := service.BuscarTodasDespesas(descricao, c)
 
 	if len(despesas) == 0 {
 		log.Println("Nenhuma despesa cadastrada!")

@@ -21,7 +21,7 @@ services:
   pgadmin-compose:
     image: dpage/pgadmin4
     environment:
-      PGADMIN_DEFAULT_EMAIL: "teste_teste@gmail.com"
+      PGADMIN_DEFAULT_EMAIL: "luis@teste.com"
       PGADMIN_DEFAULT_PASSWORD: "123456"
     ports:
       - "54321:80"
@@ -32,8 +32,8 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '0.10'
-          memory: 64M
+          cpus: '0.15'
+          memory: 128M
 
   api:
     build:

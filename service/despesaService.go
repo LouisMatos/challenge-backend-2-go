@@ -103,11 +103,11 @@ func AtualizarDespesa(despesaDTO *model.DespesaDTO, id string) (model.Despesa, b
 	}
 }
 
-func BuscarTodasDespesas(c *gin.Context) []model.Despesa {
+func BuscarTodasDespesas(descricao string, c *gin.Context) []model.Despesa {
 
 	var despesas []model.Despesa
 
-	database.DB.Find(&despesas)
+	database.DB.Where("descricao ILIKE ?", "%"+descricao+"%").Find(&despesas)
 
 	return despesas
 

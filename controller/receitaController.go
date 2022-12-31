@@ -105,7 +105,8 @@ func DeletarReceitaPorID(c *gin.Context) {
 
 func BuscarReceitaId(c *gin.Context) {
 
-	id := c.Params.ByName("id")
+	id := c.Params.ByName("p1")
+	log.Println(id)
 
 	receita := service.BuscarReceitaId(id)
 
@@ -127,6 +128,22 @@ func BuscaTodasReceitas(c *gin.Context) {
 	descricao := c.Query("descricao")
 
 	receitas := service.BuscaTodasReceitas(descricao, c)
+
+	if len(receitas) == 0 {
+		log.Println("Nenhuma receita cadastrada!")
+		c.JSON(404, gin.H{"status": 404, "mensagem": "Nenhuma receita cadastrada!"})
+	} else {
+		c.JSON(200, receitas)
+	}
+}
+
+func BuscarReceitaAnoMes(c *gin.Context) {
+
+	mes := c.Params.ByName("p2")
+
+	ano := c.Params.ByName("p1")
+
+	receitas := service.BuscaTodasReceitasMesAno(mes, ano)
 
 	if len(receitas) == 0 {
 		log.Println("Nenhuma receita cadastrada!")
