@@ -32,6 +32,11 @@ func HandleRequest(Port string) {
 		apiDespesa.DELETE("/:id", controller.DeletarDespesaPorID)
 	}
 
+	apiResumo := r.Group("/resumo")
+	{
+		apiResumo.GET("/:ano/:mes", controller.RealizarResumoAnoMes)
+	}
+
 	r.GET("/healthcheck", controller.HealthCheck)
 
 	r.NoRoute(func(c *gin.Context) {
