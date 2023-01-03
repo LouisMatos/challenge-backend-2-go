@@ -19,7 +19,7 @@ func SalvarNovaReceita(receitaDTO *model.ReceitaDTO, c *gin.Context) (model.Rece
 	receita := model.Receita{
 		Descricao: receitaDTO.Descricao,
 		Data:      date,
-		Valor:     float32(value),
+		Valor:     float64(value),
 	}
 
 	isSaved := validarReceitaJaCadastrada(receita.Descricao, receita.Data)
@@ -55,7 +55,7 @@ func AtualizarReceita(receitaDTO *model.ReceitaDTO, id string) (model.Receita, b
 		ID:        uint(u),
 		Descricao: receitaDTO.Descricao,
 		Data:      date,
-		Valor:     float32(value),
+		Valor:     float64(value),
 	}
 
 	isSaved := validarReceitaJaCadastrada(receita.Descricao, receita.Data)

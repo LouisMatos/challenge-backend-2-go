@@ -20,7 +20,7 @@ func SalvarNovaDespesa(despesaDTO *model.DespesaDTO, c *gin.Context) (model.Desp
 	despesa := model.Despesa{
 		Descricao: despesaDTO.Descricao,
 		Data:      date,
-		Valor:     float32(value),
+		Valor:     float64(value),
 		Categoria: verificaCategoria(despesaDTO.Categoria),
 	}
 
@@ -84,7 +84,7 @@ func AtualizarDespesa(despesaDTO *model.DespesaDTO, id string) (model.Despesa, b
 		ID:        uint(u),
 		Descricao: despesaDTO.Descricao,
 		Data:      date,
-		Valor:     float32(value),
+		Valor:     float64(value),
 	}
 
 	isSaved := validarDespesaJaCadastrada(despesa.Descricao, despesa.Data)

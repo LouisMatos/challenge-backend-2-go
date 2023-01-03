@@ -1,10 +1,10 @@
 package model
 
 type Resumo struct {
-	ValorTotalReceita   float64 `json:"valorTotalReceita"`
-	ValorTotalDespesa   float64 `json:"valorTotalDespesa"`
-	SaldoFinal          float64 `json:"saldoFinal"`
-	ValorTotalCategoria string  `json:"valorTotalCategoria"`
+	ValorTotalReceita   float64           `json:"valor_total_receita"`
+	ValorTotalDespesa   float64           `json:"valor_total_despesa"`
+	SaldoFinal          float64           `json:"saldo_final"`
+	ValorTotalCategoria []CategoriaResumo `json:"valor_total_categoria"`
 }
 
 type CategoriaResumo struct {
