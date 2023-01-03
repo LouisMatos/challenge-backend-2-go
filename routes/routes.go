@@ -23,11 +23,14 @@ func HandleRequest(Port string) {
 	}
 
 	apiDespesa := r.Group("/despesas")
-	apiDespesa.GET("/:id", controller.BuscarDespesaId)
-	apiDespesa.GET("/", controller.BuscarTodasDespesas)
-	apiDespesa.POST("/", controller.CadastrarDespesa)
-	apiDespesa.PUT("/:id", controller.AtualizarDespesaPorID)
-	apiDespesa.DELETE("/:id", controller.DeletarDespesaPorID)
+	{
+		apiDespesa.GET("/", controller.BuscarTodasDespesas)
+		apiDespesa.GET("/:p1", controller.GetDespesaHandler)
+		apiDespesa.GET("/:p1/:p2", controller.GetDespesaHandler)
+		apiDespesa.POST("/", controller.CadastrarDespesa)
+		apiDespesa.PUT("/:id", controller.AtualizarDespesaPorID)
+		apiDespesa.DELETE("/:id", controller.DeletarDespesaPorID)
+	}
 
 	r.GET("/healthcheck", controller.HealthCheck)
 

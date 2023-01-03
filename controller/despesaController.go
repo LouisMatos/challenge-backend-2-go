@@ -104,7 +104,7 @@ func DeletarDespesaPorID(c *gin.Context) {
 
 func BuscarDespesaId(c *gin.Context) {
 
-	id := c.Params.ByName("id")
+	id := c.Params.ByName("p1")
 
 	despesa := service.BuscarDespesaId(id)
 
@@ -133,4 +133,20 @@ func BuscarTodasDespesas(c *gin.Context) {
 		c.JSON(200, despesas)
 	}
 
+}
+
+func BuscarDespesaAnoMes(c *gin.Context) {
+
+	mes := c.Params.ByName("p2")
+
+	ano := c.Params.ByName("p1")
+
+	despesas := service.BuscaTodasDespesasMesAno(mes, ano)
+
+	if len(despesas) == 0 {
+		log.Println("Nenhuma despesa cadastrada!")
+		c.JSON(404, gin.H{"status": 404, "mensagem": "Nenhuma despesa cadastrada!"})
+	} else {
+		c.JSON(200, despesas)
+	}
 }
