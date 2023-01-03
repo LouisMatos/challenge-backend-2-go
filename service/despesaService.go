@@ -135,3 +135,17 @@ func verificaCategoria(categoria string) enum.Categoria {
 	}
 
 }
+
+func BuscaTodasDespesasMesAno(mes string, ano string) []model.Despesa {
+
+	var despesas []model.Despesa
+
+	if len(mes) == 1 {
+		mes = "0" + mes
+	}
+
+	database.DB.Where("(TO_CHAR(data, 'YYYY-MM')) = ?", ""+ano+"-"+mes).Find(&despesas)
+
+	return despesas
+
+}
