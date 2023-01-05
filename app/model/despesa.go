@@ -3,14 +3,14 @@ package model
 import (
 	"time"
 
-	"github.com/LouisMatos/challenge-backend-2-go/enum"
+	"github.com/LouisMatos/challenge-backend-2-go/app/enum"
 	"gopkg.in/validator.v2"
 )
 
 type Despesa struct {
 	ID        uint           `gorm:"primary_key"`
 	Descricao string         `gorm:"not null"`
-	Valor     float32        `gorm:"not null"`
+	Valor     float64        `gorm:"not null"`
 	Data      time.Time      `gorm:"not null"`
 	Categoria enum.Categoria `gorm:"not null"`
 }

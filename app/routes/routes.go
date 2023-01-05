@@ -3,7 +3,7 @@ package routes
 import (
 	"net/http"
 
-	"github.com/LouisMatos/challenge-backend-2-go/controller"
+	"github.com/LouisMatos/challenge-backend-2-go/app/controller"
 	"github.com/gin-gonic/gin"
 )
 
@@ -30,6 +30,11 @@ func HandleRequest(Port string) {
 		apiDespesa.POST("/", controller.CadastrarDespesa)
 		apiDespesa.PUT("/:id", controller.AtualizarDespesaPorID)
 		apiDespesa.DELETE("/:id", controller.DeletarDespesaPorID)
+	}
+
+	apiResumo := r.Group("/resumo")
+	{
+		apiResumo.GET("/:ano/:mes", controller.RealizarResumoAnoMes)
 	}
 
 	r.GET("/healthcheck", controller.HealthCheck)

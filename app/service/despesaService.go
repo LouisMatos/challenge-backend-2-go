@@ -5,9 +5,11 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/LouisMatos/challenge-backend-2-go/database"
-	"github.com/LouisMatos/challenge-backend-2-go/enum"
-	"github.com/LouisMatos/challenge-backend-2-go/model"
+	"github.com/LouisMatos/challenge-backend-2-go/app/database"
+	"github.com/LouisMatos/challenge-backend-2-go/app/enum"
+	"github.com/LouisMatos/challenge-backend-2-go/app/model"
+	"github.com/LouisMatos/challenge-backend-2-go/app/utils"
+
 	"github.com/gin-gonic/gin"
 )
 
@@ -15,12 +17,12 @@ func SalvarNovaDespesa(despesaDTO *model.DespesaDTO, c *gin.Context) (model.Desp
 
 	date, _ := time.Parse("02/01/2006 15:04:05", despesaDTO.Data+" 00:00:00")
 
-	value, _ := strconv.ParseFloat(despesaDTO.Valor, 32)
+	value, _ := strconv.ParseFloat(despesaDTO.Valor, 64)
 
 	despesa := model.Despesa{
 		Descricao: despesaDTO.Descricao,
 		Data:      date,
-		Valor:     float32(value),
+		Valor:     utils.RoundUp(float64(value), 2),
 		Categoria: verificaCategoria(despesaDTO.Categoria),
 	}
 
@@ -73,7 +75,7 @@ func AtualizarDespesa(despesaDTO *model.DespesaDTO, id string) (model.Despesa, b
 
 	date, _ := time.Parse("02/01/2006 15:04:05", despesaDTO.Data+" 00:00:00")
 
-	value, _ := strconv.ParseFloat(despesaDTO.Valor, 32)
+	value, _ := strconv.ParseFloat(despesaDTO.Valor, 64)
 
 	u, err := strconv.ParseUint(id, 0, 64)
 	if err != nil {
@@ -84,7 +86,7 @@ func AtualizarDespesa(despesaDTO *model.DespesaDTO, id string) (model.Despesa, b
 		ID:        uint(u),
 		Descricao: despesaDTO.Descricao,
 		Data:      date,
-		Valor:     float32(value),
+		Valor:     utils.RoundUp(float64(value), 2),
 	}
 
 	isSaved := validarDespesaJaCadastrada(despesa.Descricao, despesa.Data)

@@ -3,9 +3,9 @@ package main
 import (
 	"log"
 
-	"github.com/LouisMatos/challenge-backend-2-go/config"
-	"github.com/LouisMatos/challenge-backend-2-go/database"
-	"github.com/LouisMatos/challenge-backend-2-go/routes"
+	"github.com/LouisMatos/challenge-backend-2-go/app/config"
+	"github.com/LouisMatos/challenge-backend-2-go/app/database"
+	"github.com/LouisMatos/challenge-backend-2-go/app/routes"
 )
 
 func main() {

@@ -4,8 +4,8 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/LouisMatos/challenge-backend-2-go/model"
-	"github.com/LouisMatos/challenge-backend-2-go/service"
+	"github.com/LouisMatos/challenge-backend-2-go/app/model"
+	"github.com/LouisMatos/challenge-backend-2-go/app/service"
 	"github.com/gin-gonic/gin"
 )
 

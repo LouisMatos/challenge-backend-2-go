@@ -3,7 +3,7 @@ package database
 import (
 	"log"
 
-	"github.com/LouisMatos/challenge-backend-2-go/model"
+	"github.com/LouisMatos/challenge-backend-2-go/app/model"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
