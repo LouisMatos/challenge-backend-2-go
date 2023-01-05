@@ -1,7 +1,7 @@
 package controller
 
 import (
-	"github.com/LouisMatos/challenge-backend-2-go/service"
+	"github.com/LouisMatos/challenge-backend-2-go/app/service"
 	"github.com/gin-gonic/gin"
 )
 

@@ -1,10 +1,10 @@
 package service
 
 import (
-	"github.com/LouisMatos/challenge-backend-2-go/database"
-	"github.com/LouisMatos/challenge-backend-2-go/enum"
-	"github.com/LouisMatos/challenge-backend-2-go/model"
-	"github.com/LouisMatos/challenge-backend-2-go/utils"
+	"github.com/LouisMatos/challenge-backend-2-go/app/database"
+	"github.com/LouisMatos/challenge-backend-2-go/app/enum"
+	"github.com/LouisMatos/challenge-backend-2-go/app/model"
+	"github.com/LouisMatos/challenge-backend-2-go/app/utils"
 )
 
 func RealizaResumoAnoMes(mes string, ano string) model.Resumo {

@@ -3,7 +3,7 @@ package model
 import (
 	"time"
 
-	"github.com/LouisMatos/challenge-backend-2-go/enum"
+	"github.com/LouisMatos/challenge-backend-2-go/app/enum"
 	"gopkg.in/validator.v2"
 )
 

@@ -3,7 +3,7 @@ package routes
 import (
 	"net/http"
 
-	"github.com/LouisMatos/challenge-backend-2-go/controller"
+	"github.com/LouisMatos/challenge-backend-2-go/app/controller"
 	"github.com/gin-gonic/gin"
 )
 

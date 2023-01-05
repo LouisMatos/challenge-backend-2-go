@@ -1,0 +1,4 @@
+{
+    "connection_string": "host=localhost user=root password=root dbname=challenge port=5432 sslmode=disable",
+    "port": 8070
+}

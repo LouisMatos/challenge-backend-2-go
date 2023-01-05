@@ -5,8 +5,9 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/LouisMatos/challenge-backend-2-go/database"
-	"github.com/LouisMatos/challenge-backend-2-go/model"
+	"github.com/LouisMatos/challenge-backend-2-go/app/database"
+	"github.com/LouisMatos/challenge-backend-2-go/app/model"
+	"github.com/LouisMatos/challenge-backend-2-go/app/utils"
 	"github.com/gin-gonic/gin"
 )
 
@@ -14,12 +15,12 @@ func SalvarNovaReceita(receitaDTO *model.ReceitaDTO, c *gin.Context) (model.Rece
 
 	date, _ := time.Parse("02/01/2006 15:04:05", receitaDTO.Data+" 00:00:00")
 
-	value, _ := strconv.ParseFloat(receitaDTO.Valor, 32)
+	value, _ := strconv.ParseFloat(receitaDTO.Valor, 64)
 
 	receita := model.Receita{
 		Descricao: receitaDTO.Descricao,
 		Data:      date,
-		Valor:     float64(value),
+		Valor:     utils.RoundUp(float64(value), 2),
 	}
 
 	isSaved := validarReceitaJaCadastrada(receita.Descricao, receita.Data)
@@ -44,7 +45,7 @@ func AtualizarReceita(receitaDTO *model.ReceitaDTO, id string) (model.Receita, b
 
 	date, _ := time.Parse("02/01/2006 15:04:05", receitaDTO.Data+" 00:00:00")
 
-	value, _ := strconv.ParseFloat(receitaDTO.Valor, 32)
+	value, _ := strconv.ParseFloat(receitaDTO.Valor, 64)
 
 	u, err := strconv.ParseUint(id, 0, 64)
 	if err != nil {
@@ -55,7 +56,7 @@ func AtualizarReceita(receitaDTO *model.ReceitaDTO, id string) (model.Receita, b
 		ID:        uint(u),
 		Descricao: receitaDTO.Descricao,
 		Data:      date,
-		Valor:     float64(value),
+		Valor:     utils.RoundUp(float64(value), 2),
 	}
 
 	isSaved := validarReceitaJaCadastrada(receita.Descricao, receita.Data)
