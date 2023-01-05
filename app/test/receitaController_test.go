@@ -28,6 +28,7 @@ func SetupDasRotasDeTeste() *gin.Engine {
 func SetupDatabase() {
 	config.LoadAppConfig()
 	database.ConexaoComBancoDados(config.AppConfig.ConnectionString)
+	database.Migrate()
 }
 
 func CriarReceitaMock() {
@@ -47,7 +48,7 @@ func CriarReceitaDtoMockInvalido() model.ReceitaDTO {
 
 func DeletaReceitaMock() {
 	var receita model.Receita
-	database.DB.Commit().Delete(&receita, ID)
+	database.DB.Delete(&receita, ID)
 	log.Println("Deleta Receita Mock ID", ID)
 }
 
