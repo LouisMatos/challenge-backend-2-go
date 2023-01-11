@@ -4,7 +4,9 @@ go 1.18
 
 require gorm.io/driver/postgres v1.4.5
 
-require gopkg.in/go-playground/assert.v1 v1.2.1 // indirect
+require gopkg.in/go-playground/assert.v1 v1.2.1
+
+require github.com/gin-contrib/cors v1.4.0
 
 require (
 	github.com/fsnotify/fsnotify v1.6.0 // indirect
