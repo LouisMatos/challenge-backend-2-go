@@ -4,13 +4,19 @@ import (
 	"net/http"
 
 	"github.com/LouisMatos/challenge-backend-2-go/app/controller"
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 )
 
 func HandleRequest(Port string) {
 	gin.SetMode(gin.ReleaseMode)
 	r := gin.Default()
-	r.SetTrustedProxies([]string{"192.168.0.1"})
+
+	r.Use(cors.New(cors.Config{
+		AllowOrigins: []string{"*"},
+		AllowMethods: []string{"POST", "PUT", "PATCH", "DELETE", "GET"},
+		AllowHeaders: []string{"Content-Type,access-control-allow-origin, access-control-allow-headers"},
+	}))
 
 	apiReceitas := r.Group("/receitas")
 	{
