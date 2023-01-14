@@ -4,19 +4,17 @@ import (
 	"net/http"
 
 	"github.com/LouisMatos/challenge-backend-2-go/app/controller"
-	"github.com/gin-contrib/cors"
+	"github.com/LouisMatos/challenge-backend-2-go/app/middlewares"
 	"github.com/gin-gonic/gin"
+	gindump "github.com/tpkeeper/gin-dump"
 )
 
 func HandleRequest(Port string) {
 	gin.SetMode(gin.ReleaseMode)
-	r := gin.Default()
+	r := gin.New()
+	r.SetTrustedProxies([]string{"192.168.0.1"})
 
-	r.Use(cors.New(cors.Config{
-		AllowOrigins: []string{"*"},
-		AllowMethods: []string{"POST", "PUT", "PATCH", "DELETE", "GET"},
-		AllowHeaders: []string{"Content-Type,access-control-allow-origin, access-control-allow-headers"},
-	}))
+	r.Use(gin.Recovery(), middlewares.Logger(), gindump.Dump())
 
 	apiReceitas := r.Group("/receitas")
 	{

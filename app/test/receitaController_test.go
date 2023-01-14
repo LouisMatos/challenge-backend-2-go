@@ -71,6 +71,7 @@ func TestCriaNovaReceita(t *testing.T) {
 	assert.Equal(t, "Descrição Teste", receitaMock.Descricao)
 	assert.Equal(t, float64(12.21), receitaMock.Valor)
 	assert.Equal(t, "2022-10-12 00:00:00 +0000 UTC", receitaMock.Data.String())
+	defer DeletaReceitaMock()
 
 }
 
@@ -86,7 +87,7 @@ func TestCriaReceitaCamposInvalidos(t *testing.T) {
 	r.ServeHTTP(resposta, req)
 
 	assert.Equal(t, "{\"erro\":\"Descricao: zero value, Valor: zero value, less than min, regular expression mismatch, Data: zero value, less than min, regular expression mismatch\"}", resposta.Body.String())
-
+	defer DeletaReceitaMock()
 }
 
 func TestCriaReceitaJaCadastrada(t *testing.T) {
@@ -99,16 +100,13 @@ func TestCriaReceitaJaCadastrada(t *testing.T) {
 
 	receita := CriarReceitaDtoMock()
 	valorJson, _ := json.Marshal(receita)
-	req, _ := http.NewRequest("POST", "/receitas", bytes.NewBuffer(valorJson))
-	resposta := httptest.NewRecorder()
-	r.ServeHTTP(resposta, req)
-
-	assert.Equal(t, 200, resposta.Result().StatusCode)
 
 	req2, _ := http.NewRequest("POST", "/receitas", bytes.NewBuffer(valorJson))
 	resposta2 := httptest.NewRecorder()
 	r.ServeHTTP(resposta2, req2)
 
-	assert.Equal(t, "{\"message\":\"Receita já cadastrada nesse mês!\",\"status\":422}", resposta2.Body.String())
+	assert.Equal(t, 422, resposta2.Result().StatusCode)
 
+	assert.Equal(t, "{\"message\":\"Receita já cadastrada nesse mês!\",\"status\":422}", resposta2.Body.String())
+	defer DeletaReceitaMock()
 }
