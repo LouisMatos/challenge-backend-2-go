@@ -15,8 +15,8 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '0.5'
-          memory: 256M
+          cpus: '1'
+          memory: 512M
 
   pgadmin-compose:
     image: dpage/pgadmin4
@@ -50,8 +50,8 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '0.5'
-          memory: 64M
+          cpus: '1'
+          memory: 512M
 
 volumes:
   postgres:

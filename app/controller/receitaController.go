@@ -9,7 +9,59 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func CadastraReceita(c *gin.Context) {
+type ReceitaController interface {
+	Save(c *gin.Context)
+	GetAll(c *gin.Context)
+	Update(c *gin.Context)
+	Delete(c *gin.Context)
+	FindReceitaByAnoAndMes(c *gin.Context)
+	FindReceitaById(c *gin.Context)
+}
+
+type receitaController struct {
+	service service.ReceitaService
+}
+
+func NewReceitaController(service service.ReceitaService) ReceitaController {
+	return &receitaController{
+		service: service,
+	}
+}
+
+func (ctrl *receitaController) FindReceitaByAnoAndMes(c *gin.Context) {
+
+	mes := c.Params.ByName("p2")
+
+	ano := c.Params.ByName("p1")
+
+	receitas := ctrl.service.FindReceitaByAnoAndMes(ano, mes)
+
+	if len(receitas) == 0 {
+		log.Println("Nenhuma receita cadastrada!")
+		c.JSON(404, gin.H{"status": 404, "mensagem": "Nenhuma receita cadastrada!"})
+	} else {
+		c.JSON(200, receitas)
+	}
+}
+
+func (ctrl *receitaController) FindReceitaById(c *gin.Context) {
+
+	id := c.Params.ByName("p1")
+	log.Println(id)
+
+	receita := ctrl.service.FindById(id)
+
+	if receita.ID == 0 {
+		c.JSON(http.StatusNotFound, gin.H{
+			"mensagem": "Receita não encontrado",
+			"status":   404})
+		return
+	}
+
+	c.JSON(200, receita)
+}
+
+func (ctrl *receitaController) Save(c *gin.Context) {
 
 	var receita model.ReceitaDTO
 	log.Print("Iniciando cadastro de receita")
@@ -30,7 +82,7 @@ func CadastraReceita(c *gin.Context) {
 
 	log.Print("Campos validados com sucesso! ", receita)
 
-	receitaSalva, jaCadastrado := service.SalvarNovaReceita(&receita, c)
+	receitaSalva, jaCadastrado := ctrl.service.Save(receita)
 
 	if jaCadastrado {
 		log.Println("Receita cadastrada anteriormente!")
@@ -38,14 +90,13 @@ func CadastraReceita(c *gin.Context) {
 	} else {
 		c.JSON(http.StatusOK, receitaSalva)
 	}
-
 }
 
-func AtualizarReceitaPorID(c *gin.Context) {
+func (ctrl *receitaController) Update(c *gin.Context) {
 
 	id := c.Params.ByName("id")
 
-	receita := service.BuscarReceitaId(id)
+	receita := ctrl.service.FindById(id)
 
 	if receita.ID == 0 {
 		c.JSON(http.StatusNotFound, gin.H{
@@ -74,7 +125,7 @@ func AtualizarReceitaPorID(c *gin.Context) {
 
 	log.Print("Campos validados com sucesso! ", receitaDTO)
 
-	receitaAtualizada, jaCadastrado := service.AtualizarReceita(&receitaDTO, id)
+	receitaAtualizada, jaCadastrado := ctrl.service.Update(receitaDTO, id)
 
 	if jaCadastrado {
 		log.Println("Receita cadastrada anteriormente!")
@@ -85,11 +136,11 @@ func AtualizarReceitaPorID(c *gin.Context) {
 
 }
 
-func DeletarReceitaPorID(c *gin.Context) {
+func (ctrl *receitaController) Delete(c *gin.Context) {
 
 	id := c.Params.ByName("id")
 
-	receita := service.BuscarReceitaId(id)
+	receita := ctrl.service.FindById(id)
 
 	if receita.ID == 0 {
 		c.JSON(http.StatusNotFound, gin.H{
@@ -98,36 +149,18 @@ func DeletarReceitaPorID(c *gin.Context) {
 		return
 	}
 
-	service.DeletarReceitaPorID(id)
+	ctrl.service.Delete(id)
 
 	c.JSON(http.StatusNoContent, nil)
 }
 
-func BuscarReceitaId(c *gin.Context) {
-
-	id := c.Params.ByName("p1")
-	log.Println(id)
-
-	receita := service.BuscarReceitaId(id)
-
-	if receita.ID == 0 {
-		c.JSON(http.StatusNotFound, gin.H{
-			"mensagem": "Receita não encontrado",
-			"status":   404})
-		return
-	}
-
-	c.JSON(200, receita)
-
-}
-
-func BuscaTodasReceitas(c *gin.Context) {
+func (ctrl *receitaController) GetAll(c *gin.Context) {
 
 	log.Println("Iniciando busca de todas as receitas!")
 
 	descricao := c.Query("descricao")
 
-	receitas := service.BuscaTodasReceitas(descricao, c)
+	receitas := ctrl.service.GetAll(descricao)
 
 	if len(receitas) == 0 {
 		log.Println("Nenhuma receita cadastrada!")
@@ -135,20 +168,5 @@ func BuscaTodasReceitas(c *gin.Context) {
 	} else {
 		c.JSON(200, receitas)
 	}
-}
 
-func BuscarReceitaAnoMes(c *gin.Context) {
-
-	mes := c.Params.ByName("p2")
-
-	ano := c.Params.ByName("p1")
-
-	receitas := service.BuscaTodasReceitasMesAno(mes, ano)
-
-	if len(receitas) == 0 {
-		log.Println("Nenhuma receita cadastrada!")
-		c.JSON(404, gin.H{"status": 404, "mensagem": "Nenhuma receita cadastrada!"})
-	} else {
-		c.JSON(200, receitas)
-	}
 }

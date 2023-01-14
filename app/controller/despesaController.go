@@ -9,9 +9,29 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func CadastrarDespesa(c *gin.Context) {
+type DespesaController interface {
+	Save(c *gin.Context)
+	GetAll(c *gin.Context)
+	Update(c *gin.Context)
+	Delete(c *gin.Context)
+	FindDespesaByAnoAndMes(c *gin.Context)
+	FindDespesaById(c *gin.Context)
+}
+
+type despesaController struct {
+	service service.DespesaService
+}
+
+func NewDespesaController(service service.DespesaService) DespesaController {
+	return &despesaController{
+		service: service,
+	}
+}
+
+func (ctrl *despesaController) Save(c *gin.Context) {
 
 	var despesa model.DespesaDTO
+
 	log.Print("Iniciando cadastro de receita")
 
 	if err := c.ShouldBindJSON(&despesa); err != nil {
@@ -30,7 +50,7 @@ func CadastrarDespesa(c *gin.Context) {
 
 	log.Print("Campos validados com sucesso! ", despesa)
 
-	despesaSalva, jaCadastrado := service.SalvarNovaDespesa(&despesa, c)
+	despesaSalva, jaCadastrado := ctrl.service.Save(despesa)
 
 	if jaCadastrado {
 		log.Println("Receita cadastrada anteriormente!")
@@ -41,11 +61,27 @@ func CadastrarDespesa(c *gin.Context) {
 
 }
 
-func AtualizarDespesaPorID(c *gin.Context) {
+func (ctrl *despesaController) GetAll(c *gin.Context) {
+
+	log.Println("Iniciando busca de todas as despesas!")
+
+	descricao := c.Query("descricao")
+
+	despesas := ctrl.service.GetAll(descricao)
+
+	if len(despesas) == 0 {
+		log.Println("Nenhuma despesa cadastrada!")
+		c.JSON(404, gin.H{"status": 404, "mensagem": "Nenhuma despesa cadastrada!"})
+	} else {
+		c.JSON(200, despesas)
+	}
+}
+
+func (ctrl *despesaController) Update(c *gin.Context) {
 
 	id := c.Params.ByName("id")
 
-	despesa := service.BuscarDespesaId(id)
+	despesa := ctrl.service.FindById(id)
 
 	if despesa.ID == 0 {
 		c.JSON(http.StatusNotFound, gin.H{
@@ -74,7 +110,7 @@ func AtualizarDespesaPorID(c *gin.Context) {
 
 	log.Print("Campos validados com sucesso! ", despesaDTO)
 
-	despesaAtualizada, jaCadastrado := service.AtualizarDespesa(&despesaDTO, id)
+	despesaAtualizada, jaCadastrado := ctrl.service.Update(despesaDTO, id)
 
 	if jaCadastrado {
 		log.Println("Despesa cadastrada anteriormente!")
@@ -82,13 +118,14 @@ func AtualizarDespesaPorID(c *gin.Context) {
 	} else {
 		c.JSON(http.StatusOK, despesaAtualizada)
 	}
+
 }
 
-func DeletarDespesaPorID(c *gin.Context) {
+func (ctrl *despesaController) Delete(c *gin.Context) {
 
 	id := c.Params.ByName("id")
 
-	receita := service.BuscarDespesaId(id)
+	receita := ctrl.service.FindById(id)
 
 	if receita.ID == 0 {
 		c.JSON(http.StatusNotFound, gin.H{
@@ -97,16 +134,34 @@ func DeletarDespesaPorID(c *gin.Context) {
 		return
 	}
 
-	service.DeletarDespesaPorID(id)
+	ctrl.service.Delete(id)
 
 	c.JSON(http.StatusNoContent, nil)
+
 }
 
-func BuscarDespesaId(c *gin.Context) {
+func (ctrl *despesaController) FindDespesaByAnoAndMes(c *gin.Context) {
+
+	mes := c.Params.ByName("p2")
+
+	ano := c.Params.ByName("p1")
+
+	despesas := ctrl.service.FindDespesaByAnoAndMes(ano, mes)
+
+	if len(despesas) == 0 {
+		log.Println("Nenhuma despesa cadastrada!")
+		c.JSON(404, gin.H{"status": 404, "mensagem": "Nenhuma despesa cadastrada!"})
+	} else {
+		c.JSON(200, despesas)
+	}
+
+}
+
+func (ctrl *despesaController) FindDespesaById(c *gin.Context) {
 
 	id := c.Params.ByName("p1")
 
-	despesa := service.BuscarDespesaId(id)
+	despesa := ctrl.service.FindById(id)
 
 	if despesa.ID == 0 {
 		c.JSON(http.StatusNotFound, gin.H{
@@ -116,37 +171,4 @@ func BuscarDespesaId(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, despesa)
-}
-
-func BuscarTodasDespesas(c *gin.Context) {
-
-	log.Println("Iniciando busca de todas as despesas!")
-
-	descricao := c.Query("descricao")
-
-	despesas := service.BuscarTodasDespesas(descricao, c)
-
-	if len(despesas) == 0 {
-		log.Println("Nenhuma despesa cadastrada!")
-		c.JSON(404, gin.H{"status": 404, "mensagem": "Nenhuma despesa cadastrada!"})
-	} else {
-		c.JSON(200, despesas)
-	}
-
-}
-
-func BuscarDespesaAnoMes(c *gin.Context) {
-
-	mes := c.Params.ByName("p2")
-
-	ano := c.Params.ByName("p1")
-
-	despesas := service.BuscaTodasDespesasMesAno(mes, ano)
-
-	if len(despesas) == 0 {
-		log.Println("Nenhuma despesa cadastrada!")
-		c.JSON(404, gin.H{"status": 404, "mensagem": "Nenhuma despesa cadastrada!"})
-	} else {
-		c.JSON(200, despesas)
-	}
 }

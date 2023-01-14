@@ -1,13 +1,27 @@
 package service
 
 import (
-	"github.com/LouisMatos/challenge-backend-2-go/app/database"
 	"github.com/LouisMatos/challenge-backend-2-go/app/enum"
 	"github.com/LouisMatos/challenge-backend-2-go/app/model"
+	"github.com/LouisMatos/challenge-backend-2-go/app/repository"
 	"github.com/LouisMatos/challenge-backend-2-go/app/utils"
 )
 
-func RealizaResumoAnoMes(mes string, ano string) model.Resumo {
+type ResumoService interface {
+	GetMonthSummary(ano string, mes string) model.Resumo
+}
+
+type resumoService struct {
+	resumoRepository repository.ResumoRepository
+}
+
+func NewResumoService(repo repository.ResumoRepository) ResumoService {
+	return &resumoService{
+		resumoRepository: repo,
+	}
+}
+
+func (service *resumoService) GetMonthSummary(ano string, mes string) model.Resumo {
 
 	var resumo model.Resumo
 
@@ -20,9 +34,9 @@ func RealizaResumoAnoMes(mes string, ano string) model.Resumo {
 		mes = "0" + mes
 	}
 
-	database.DB.Where("(TO_CHAR(data, 'YYYY-MM')) = ?", ""+ano+"-"+mes).Find(&despesas)
+	despesas = service.resumoRepository.GetAllDespesasByAnoAndMes(ano, mes)
 
-	database.DB.Where("(TO_CHAR(data, 'YYYY-MM')) = ?", ""+ano+"-"+mes).Find(&receitas)
+	receitas = service.resumoRepository.GetAllReceitasByAnoAndMes(ano, mes)
 
 	for i := 0; i < len(despesas); i++ {
 		resumo.ValorTotalDespesa = resumo.ValorTotalDespesa + float64(despesas[i].Valor)

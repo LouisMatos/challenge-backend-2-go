@@ -9,7 +9,6 @@ import (
 )
 
 func main() {
-
 	config.LoadAppConfig()
 
 	log.Println("Iniciando conexão com o banco de dados")

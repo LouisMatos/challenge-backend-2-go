@@ -5,19 +5,39 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/LouisMatos/challenge-backend-2-go/app/database"
 	"github.com/LouisMatos/challenge-backend-2-go/app/enum"
 	"github.com/LouisMatos/challenge-backend-2-go/app/model"
+	"github.com/LouisMatos/challenge-backend-2-go/app/repository"
 	"github.com/LouisMatos/challenge-backend-2-go/app/utils"
-
-	"github.com/gin-gonic/gin"
 )
 
-func SalvarNovaDespesa(despesaDTO *model.DespesaDTO, c *gin.Context) (model.Despesa, bool) {
+type DespesaService interface {
+	Save(despesaDTO model.DespesaDTO) (model.Despesa, bool)
+	Update(despesaDTO model.DespesaDTO, id string) (model.Despesa, bool)
+	FindDespesaByAnoAndMes(ano string, mes string) []model.Despesa
+	GetAll(descricao string) []model.Despesa
+	FindById(id string) model.Despesa
+	Delete(id string)
+	ValidarDespesaJaExiste(Descricao string, Data time.Time) bool
+}
+
+type despesaService struct {
+	despesaRepository repository.DespesaRepository
+}
+
+func NewDespesaService(repo repository.DespesaRepository) DespesaService {
+	return &despesaService{
+		despesaRepository: repo,
+	}
+}
+
+func (service *despesaService) Save(despesaDTO model.DespesaDTO) (model.Despesa, bool) {
 
 	date, _ := time.Parse("02/01/2006 15:04:05", despesaDTO.Data+" 00:00:00")
 
 	value, _ := strconv.ParseFloat(despesaDTO.Valor, 64)
+
+	log.Println("Convertendo dto para objeto a ser salvo no banco de dados!")
 
 	despesa := model.Despesa{
 		Descricao: despesaDTO.Descricao,
@@ -26,13 +46,11 @@ func SalvarNovaDespesa(despesaDTO *model.DespesaDTO, c *gin.Context) (model.Desp
 		Categoria: verificaCategoria(despesaDTO.Categoria),
 	}
 
-	isSaved := validarDespesaJaCadastrada(despesa.Descricao, despesa.Data)
+	isSaved := service.ValidarDespesaJaExiste(despesa.Descricao, despesa.Data)
 
 	if !isSaved {
 
-		log.Println("Convertendo dto para objeto a ser salvo no banco de dados!")
-
-		database.DB.Create(&despesa)
+		despesa = service.despesaRepository.Save(despesa)
 
 		log.Println("Despesa salva no banco de dados!")
 
@@ -44,11 +62,9 @@ func SalvarNovaDespesa(despesaDTO *model.DespesaDTO, c *gin.Context) (model.Desp
 
 }
 
-func validarDespesaJaCadastrada(Descricao string, Data time.Time) bool {
+func (service *despesaService) ValidarDespesaJaExiste(descricao string, data time.Time) bool {
 
-	var despesa model.Despesa
-
-	database.DB.Where("descricao ILIKE ? AND TO_CHAR(data, 'yyyy-mm') LIKE ?", Descricao, Data.Format("2006-01")).Find(&despesa)
+	despesa := service.despesaRepository.AlreadyRegistered(descricao, data)
 
 	if despesa.ID == 0 {
 		log.Println("Despesa ainda não foi cadastrada!")
@@ -60,18 +76,25 @@ func validarDespesaJaCadastrada(Descricao string, Data time.Time) bool {
 
 }
 
-func BuscarDespesaId(id string) model.Despesa {
-	var despesa model.Despesa
-	database.DB.First(&despesa, id)
-	return despesa
+func (service *despesaService) GetAll(descricao string) []model.Despesa {
+
+	var despesas []model.Despesa
+
+	despesas = service.despesaRepository.GetAll(descricao, despesas)
+
+	return despesas
+
 }
 
-func DeletarDespesaPorID(id string) {
-	var despesa model.Despesa
-	database.DB.Delete(&despesa, id)
+func (service *despesaService) FindById(id string) model.Despesa {
+
+	receita := service.despesaRepository.FindById(id)
+
+	return receita
+
 }
 
-func AtualizarDespesa(despesaDTO *model.DespesaDTO, id string) (model.Despesa, bool) {
+func (service *despesaService) Update(despesaDTO model.DespesaDTO, id string) (model.Despesa, bool) {
 
 	date, _ := time.Parse("02/01/2006 15:04:05", despesaDTO.Data+" 00:00:00")
 
@@ -82,20 +105,21 @@ func AtualizarDespesa(despesaDTO *model.DespesaDTO, id string) (model.Despesa, b
 		panic(err)
 	}
 
+	log.Println("Convertendo dto para objeto a ser atualizado no banco de dados!")
+
 	despesa := model.Despesa{
 		ID:        uint(u),
 		Descricao: despesaDTO.Descricao,
 		Data:      date,
 		Valor:     utils.RoundUp(float64(value), 2),
+		Categoria: verificaCategoria(despesaDTO.Categoria),
 	}
 
-	isSaved := validarDespesaJaCadastrada(despesa.Descricao, despesa.Data)
+	isSaved := service.ValidarDespesaJaExiste(despesa.Descricao, despesa.Data)
 
 	if !isSaved {
 
-		log.Println("Convertendo dto para objeto a ser atualizado no banco de dados!")
-
-		database.DB.Save(&despesa)
+		despesa = service.despesaRepository.Update(despesa)
 
 		log.Println("Despesa atualizada no banco de dados!")
 
@@ -103,16 +127,22 @@ func AtualizarDespesa(despesaDTO *model.DespesaDTO, id string) (model.Despesa, b
 	} else {
 		return despesa, true
 	}
+
 }
 
-func BuscarTodasDespesas(descricao string, c *gin.Context) []model.Despesa {
+func (service *despesaService) Delete(id string) {
+	service.despesaRepository.Delete(id)
+}
 
-	var despesas []model.Despesa
+func (service *despesaService) FindDespesaByAnoAndMes(ano string, mes string) []model.Despesa {
 
-	database.DB.Where("descricao ILIKE ?", "%"+descricao+"%").Find(&despesas)
+	if len(mes) == 1 {
+		mes = "0" + mes
+	}
 
-	return despesas
+	receitas := service.despesaRepository.FindDespesaByAnoAndMes(ano, mes)
 
+	return receitas
 }
 
 func verificaCategoria(categoria string) enum.Categoria {
@@ -135,19 +165,5 @@ func verificaCategoria(categoria string) enum.Categoria {
 	default:
 		return 8
 	}
-
-}
-
-func BuscaTodasDespesasMesAno(mes string, ano string) []model.Despesa {
-
-	var despesas []model.Despesa
-
-	if len(mes) == 1 {
-		mes = "0" + mes
-	}
-
-	database.DB.Where("(TO_CHAR(data, 'YYYY-MM')) = ?", ""+ano+"-"+mes).Find(&despesas)
-
-	return despesas
 
 }

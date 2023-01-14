@@ -29,6 +29,10 @@ func ConexaoComBancoDados(connectionString string) {
 
 }
 
+func GetConnection() *gorm.DB {
+	return DB
+}
+
 func Migrate() {
 	DB.AutoMigrate(&model.Despesa{})
 	DB.AutoMigrate(&model.Receita{})

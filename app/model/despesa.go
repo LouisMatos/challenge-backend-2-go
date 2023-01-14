@@ -28,8 +28,3 @@ func ValidaDadosDespesa(despesa *DespesaDTO) error {
 	}
 	return nil
 }
-
-// var d enum.Categoria = 2
-// 	fmt.Println(d)             // Print : West
-// 	fmt.Println(d.String())    // Print : West
-// 	fmt.Println(d.EnumIndex()) // Print : 4
