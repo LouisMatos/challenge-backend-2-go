@@ -7,10 +7,10 @@ import (
 )
 
 type Receita struct {
-	ID        uint      `gorm:"primary_key"`
-	Descricao string    `gorm:"not null"`
-	Valor     float64   `gorm:"not null"`
-	Data      time.Time `gorm:"not null"`
+	ID        uint      `gorm:"primary_key" json:"id"`
+	Descricao string    `gorm:"not null" json:"descricao"`
+	Valor     float64   `gorm:"not null" json:"valor"`
+	Data      time.Time `gorm:"not null" json:"data"`
 }
 
 type ReceitaDTO struct {

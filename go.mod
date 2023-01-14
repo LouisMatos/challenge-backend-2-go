@@ -6,8 +6,6 @@ require gorm.io/driver/postgres v1.4.5
 
 require gopkg.in/go-playground/assert.v1 v1.2.1
 
-require github.com/gin-contrib/cors v1.4.0
-
 require (
 	github.com/fsnotify/fsnotify v1.6.0 // indirect
 	github.com/gin-contrib/sse v0.1.0 // indirect
@@ -43,6 +41,7 @@ require (
 	github.com/spf13/pflag v1.0.5 // indirect
 	github.com/spf13/viper v1.14.0
 	github.com/subosito/gotenv v1.4.1 // indirect
+	github.com/tpkeeper/gin-dump v1.0.1
 	github.com/ugorji/go/codec v1.2.7 // indirect
 	golang.org/x/crypto v0.4.0 // indirect
 	golang.org/x/net v0.4.0 // indirect
