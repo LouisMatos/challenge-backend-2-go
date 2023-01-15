@@ -5,6 +5,7 @@ import (
 
 	"github.com/LouisMatos/challenge-backend-2-go/app/controller"
 	"github.com/LouisMatos/challenge-backend-2-go/app/database"
+	"github.com/LouisMatos/challenge-backend-2-go/app/middlewares"
 	"github.com/LouisMatos/challenge-backend-2-go/app/repository"
 	"github.com/LouisMatos/challenge-backend-2-go/app/service"
 	"github.com/gin-gonic/gin"
@@ -16,12 +17,18 @@ var (
 	receitaRepository        repository.ReceitaRepository
 	despesaRepository        repository.DespesaRepository
 	resumoRepository         repository.ResumoRepository
+	usuarioRepository        repository.UsuarioRepository
 	receitaService           service.ReceitaService
 	despesaService           service.DespesaService
 	resumoService            service.ResumoService
+	usuarioService           service.UsuarioService
+	loginService             service.LoginService
+	jwtService               service.JWTService
 	receitaController        controller.ReceitaController
 	despesaController        controller.DespesaController
 	resumoController         controller.ResumoController
+	usuarioController        controller.UsuarioController
+	loginController          controller.LoginController
 	defaultReceitaController controller.DefaultReceitaController
 	defaultDespesaController controller.DefaultDespesaController
 )
@@ -33,14 +40,20 @@ func HandleRequest(Port string) {
 	receitaRepository = repository.NewReceitaRepository(dbConnection)
 	despesaRepository = repository.NewDespesaRepository(dbConnection)
 	resumoRepository = repository.NewResumoRepository(dbConnection)
+	usuarioRepository = repository.NewUsuarioRepository(dbConnection)
 
 	receitaService = service.NewReceitaService(receitaRepository)
 	despesaService = service.NewDespesaService(despesaRepository)
 	resumoService = service.NewResumoService(resumoRepository)
+	usuarioService = service.NewUsuarioService(usuarioRepository)
+	loginService = service.NewLoginService()
+	jwtService = service.NewJWTService()
 
 	receitaController = controller.NewReceitaController(receitaService)
 	despesaController = controller.NewDespesaController(despesaService)
 	resumoController = controller.NewResumoController(resumoService)
+	usuarioController = controller.NewUsuarioController(usuarioService)
+	loginController = controller.NewLoginController(usuarioService, jwtService)
 
 	defaultReceitaController = controller.NewDefaultReceitaController(receitaService)
 	defaultDespesaController = controller.NewDefaultDespesaController(despesaService)
@@ -52,7 +65,7 @@ func HandleRequest(Port string) {
 
 	// r.Use(gin.Recovery(), middlewares.Logger(), gindump.Dump())
 
-	apiReceitas := r.Group("/receitas")
+	apiReceitas := r.Group("/receitas", middlewares.AuthorizeJWT())
 	{
 		apiReceitas.GET("/", receitaController.GetAll)
 		apiReceitas.GET("/:p1", defaultReceitaController.GetReceitaHandler)
@@ -62,7 +75,7 @@ func HandleRequest(Port string) {
 		apiReceitas.DELETE("/:id", receitaController.Delete)
 	}
 
-	apiDespesa := r.Group("/despesas")
+	apiDespesa := r.Group("/despesas", middlewares.AuthorizeJWT())
 	{
 		apiDespesa.GET("/", despesaController.GetAll)
 		apiDespesa.GET("/:p1", defaultDespesaController.GetDespesaHandler)
@@ -76,6 +89,23 @@ func HandleRequest(Port string) {
 	{
 		apiResumo.GET("/:ano/:mes", resumoController.GetMonthSummary)
 	}
+
+	apiUsuario := r.Group("/usuario")
+	{
+		apiUsuario.POST("/registrar", usuarioController.Save)
+	}
+
+	// Login Endpoint: Authentication + Token creation
+	r.POST("/login", func(ctx *gin.Context) {
+		token := loginController.Login(ctx)
+		if token != "" {
+			ctx.JSON(http.StatusOK, gin.H{
+				"token": token,
+			})
+		} else {
+			ctx.Status(http.StatusUnauthorized)
+		}
+	})
 
 	r.GET("/healthcheck", controller.HealthCheck)
 

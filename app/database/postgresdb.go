@@ -36,5 +36,6 @@ func GetConnection() *gorm.DB {
 func Migrate() {
 	DB.AutoMigrate(&model.Despesa{})
 	DB.AutoMigrate(&model.Receita{})
+	DB.AutoMigrate(&model.Usuario{})
 	log.Println("Migração do banco de dados concluída...")
 }

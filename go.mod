@@ -41,12 +41,11 @@ require (
 )
 
 require (
+	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/gin-gonic/gin v1.8.2
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/jinzhu/now v1.1.5 // indirect
 	github.com/spf13/viper v1.14.0
-	github.com/tpkeeper/gin-dump v1.0.1
-	gopkg.in/go-playground/assert.v1 v1.2.1
 	gopkg.in/validator.v2 v2.0.1
 	gorm.io/driver/postgres v1.4.6
 )
