@@ -2,14 +2,15 @@ package routes
 
 import (
 	"net/http"
+	"time"
 
 	"github.com/LouisMatos/challenge-backend-2-go/app/controller"
 	"github.com/LouisMatos/challenge-backend-2-go/app/database"
 	"github.com/LouisMatos/challenge-backend-2-go/app/middlewares"
 	"github.com/LouisMatos/challenge-backend-2-go/app/repository"
 	"github.com/LouisMatos/challenge-backend-2-go/app/service"
-	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
+	"github.com/itsjamie/gin-cors"
 	"gorm.io/gorm"
 )
 
@@ -63,10 +64,15 @@ func HandleRequest(Port string) {
 	r := gin.Default()
 
 	r.SetTrustedProxies([]string{"192.168.0.1"})
-	config := cors.DefaultConfig()
-	config.AllowOrigins = []string{"*"}
-
-	r.Use(cors.New(config))
+	r.Use(cors.Middleware(cors.Config{
+		Origins:         "*",
+		Methods:         "GET, PUT, POST, DELETE",
+		RequestHeaders:  "Origin, Authorization, Content-Type",
+		ExposedHeaders:  "",
+		MaxAge:          50 * time.Second,
+		Credentials:     false,
+		ValidateHeaders: false,
+	}))
 
 	// r.Use(gin.Recovery(), middlewares.Logger(), gindump.Dump())
 
