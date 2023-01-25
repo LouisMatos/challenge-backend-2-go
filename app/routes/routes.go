@@ -8,6 +8,7 @@ import (
 	"github.com/LouisMatos/challenge-backend-2-go/app/middlewares"
 	"github.com/LouisMatos/challenge-backend-2-go/app/repository"
 	"github.com/LouisMatos/challenge-backend-2-go/app/service"
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 )
@@ -62,6 +63,10 @@ func HandleRequest(Port string) {
 	r := gin.Default()
 
 	r.SetTrustedProxies([]string{"192.168.0.1"})
+	config := cors.DefaultConfig()
+	config.AllowOrigins = []string{"*"}
+
+	r.Use(cors.New(config))
 
 	// r.Use(gin.Recovery(), middlewares.Logger(), gindump.Dump())
 
